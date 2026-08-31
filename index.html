@@ -55,10 +55,10 @@ body{
     radial-gradient(1px 1px at 80% 45%, rgba(255,255,255,.6), transparent 60%),
     radial-gradient(1px 1px at 25% 55%, rgba(255,255,255,.6), transparent 60%),
     radial-gradient(1px 1px at 68% 78%, rgba(255,255,255,.6), transparent 60%),
-    radial-gradient(ellipse 70% 40% at 30% 20%, rgba(217,205,245,.30) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 45% at 75% 65%, rgba(255,214,232,.32) 0%, transparent 65%),
-    radial-gradient(ellipse 80% 50% at 55% 90%, rgba(164,143,214,.20) 0%, transparent 65%),
-    linear-gradient(165deg,#FFB1C3 0%,#FFFFFF 100%);
+    radial-gradient(ellipse 70% 40% at 30% 20%, rgba(217,205,245,.18) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 45% at 75% 65%, rgba(255,214,232,.20) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 50% at 55% 90%, rgba(164,143,214,.10) 0%, transparent 65%),
+    linear-gradient(165deg,#FFE3EA 0%,#FFFFFF 100%);
   background-repeat:no-repeat;
   background-attachment:fixed;
   line-height:1.85;
@@ -67,12 +67,12 @@ body{
 }
 body::before{
   content:'';position:fixed;top:-160px;right:-140px;width:480px;height:480px;
-  background:radial-gradient(circle,rgba(255,177,195,.35) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(255,177,195,.18) 0%,transparent 70%);
   pointer-events:none;z-index:0;
 }
 body::after{
   content:'';position:fixed;bottom:-180px;left:-140px;width:460px;height:460px;
-  background:radial-gradient(circle,rgba(255,177,195,.25) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(255,177,195,.14) 0%,transparent 70%);
   pointer-events:none;z-index:0;
 }
 .galaxy-overlay{
@@ -282,9 +282,9 @@ img,video,iframe{max-width:100%;display:block;-webkit-user-drag:none;user-drag:n
 .portfolio-panel[data-tab="배너류"] .portfolio-item-media{width:360px;height:130px;}
 .portfolio-panel[data-tab="배너류"] .portfolio-item.pending{width:360px;height:130px;}
 
-.portfolio-panel[data-tab="포스터류"] .portfolio-item{width:220px;}
-.portfolio-panel[data-tab="포스터류"] .portfolio-item-media{width:220px;height:320px;}
-.portfolio-panel[data-tab="포스터류"] .portfolio-item.pending{width:220px;height:320px;}
+.portfolio-panel[data-tab="포스터류"] .portfolio-item{width:280px;}
+.portfolio-panel[data-tab="포스터류"] .portfolio-item-media{width:280px;height:400px;}
+.portfolio-panel[data-tab="포스터류"] .portfolio-item.pending{width:280px;height:400px;}
 
 .portfolio-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
 .tab-btn{
@@ -335,6 +335,13 @@ img,video,iframe{max-width:100%;display:block;-webkit-user-drag:none;user-drag:n
 .color-swatch::-webkit-color-swatch{border:none;border-radius:50%;}
 .color-swatch::-moz-color-swatch{border:none;border-radius:50%;}
 .color-hex{flex:1;text-transform:uppercase;letter-spacing:.05em;cursor:default;}
+.color-preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.color-preset-swatch{
+  width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.9);cursor:pointer;
+  box-shadow:0 3px 8px -2px rgba(160,140,190,.5);padding:0;transition:transform .2s ease;
+}
+.color-preset-swatch:hover{transform:scale(1.15);}
+.color-preset-swatch.active{border-color:var(--mint-deep);box-shadow:0 0 0 2px rgba(155,127,209,.35);}
 #form-preview{
   white-space:pre-wrap;background:rgba(255,255,255,.6);border:1px solid rgba(155,127,209,.2);border-radius:18px;padding:20px 22px;
   font-size:16px;margin-top:22px;color:var(--ink);line-height:1.95;
@@ -423,6 +430,7 @@ img,video,iframe{max-width:100%;display:block;-webkit-user-drag:none;user-drag:n
         <input type="color" class="color-swatch" id="rf-color1" value="#FFD0E4">
         <input type="text" class="rf-text-input color-hex" id="rf-color1-hex" value="#FFD0E4" readonly>
       </div>
+      <div class="color-preset-row" data-target="rf-color1"></div>
     </div>
     <div class="form-field">
       <label><span id="form-label-c2">색상 2</span> <span class="opt">(선택)</span></label>
@@ -430,6 +438,7 @@ img,video,iframe{max-width:100%;display:block;-webkit-user-drag:none;user-drag:n
         <input type="color" class="color-swatch" id="rf-color2" value="#FFD0E4">
         <input type="text" class="rf-text-input color-hex" id="rf-color2-hex" value="#FFD0E4" readonly>
       </div>
+      <div class="color-preset-row" data-target="rf-color2"></div>
     </div>
   </div>
 
@@ -678,7 +687,7 @@ function parseCsvGeneric(text){
      - 색상(선택) : A열에 #컬러코드 다음 줄부터 그 색으로 칠할 단어들
      - 버튼(선택) : 문구 열 1행 = 상단 뱃지 문구
 */
-const MGMT_SHEET_ID = ''; /* <-- 여기에 시트 ID를 넣어주세요 */
+const MGMT_SHEET_ID = '1uollQ01Gf5P0ix5c7j7uIkeTrvDQPXa7v2BH-ro86Pg';
 function sheetCsvUrl(sheetName){
   return `https://docs.google.com/spreadsheets/d/${MGMT_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
 }
@@ -762,26 +771,22 @@ function reorderPortfolioTabs(tabsId, panelsId, orderStr){
   btnsNow.forEach((b, i) => b.classList.toggle('active', i === 0));
   panelsNow.forEach((p, i) => p.classList.toggle('active', i === 0));
 }
-function renderPortfolio(items, wrapId){
-  const wrap = document.getElementById(wrapId);
-  if(!wrap || !items.length) return;
+function renderPortfolio(items){
+  if(!items.length) return;
   const byGroup = {};
   items.forEach(it => {
     const g = (it.group || '').trim();
     if(!g) return;
     (byGroup[g] = byGroup[g] || []).push(it);
   });
-  const groupOrder = Object.keys(byGroup);
-  groupOrder.forEach(g => {
-    const panel = ensurePortfolioTab(wrapId, g);
-    if(!panel) return;
+  Object.keys(byGroup).forEach(g => {
+    const panel = document.querySelector('.portfolio-panel[data-tab="' + g + '"]');
+    if(!panel) return; /* 5개 카테고리(네컷2x2/네컷1x4/포토카드/배너류/포스터류) 이외의 값은 무시 */
     panel.innerHTML = `<div class="portfolio-row drag-scroll"></div>`;
     const row = panel.querySelector('.portfolio-row');
     row.innerHTML = byGroup[g].map(portfolioItemHtml).join('');
     makeDragScroll(row);
   });
-  const tabsId = wrapId.replace('-groups', '-tabs');
-  reorderPortfolioTabs(tabsId, wrapId, groupOrder.join(','));
 }
 function makeDragScroll(row){
   let dragging = false, startX = 0, startScroll = 0, moved = false;
@@ -794,15 +799,15 @@ function makeDragScroll(row){
 if(PORTFOLIO_CSV_URL){
   fetch(PORTFOLIO_CSV_URL)
     .then(res => res.text())
-    .then(text => renderPortfolio(parsePortfolioCsv(text), 'portfolio-groups'))
+    .then(text => renderPortfolio(parsePortfolioCsv(text)))
     .catch(() => {});
 }
 
 /* ================= 포트폴리오 - 깃허브 폴더 자동 연동 (구글 시트 없이) =================
    ★★★ 아래 GITHUB_OWNER / GITHUB_REPO 를 Purin용 GitHub 저장소에 맞게 채워주세요. ★★★
    저장소 안에 아래 5개 폴더를 만들고 그 안에 이미지/gif/영상 파일만 넣으면 자동으로 해당 탭에 나타납니다. */
-const GITHUB_OWNER = ''; /* <-- 예: yourname-gif */
-const GITHUB_REPO = ''; /* <-- 예: purin */
+const GITHUB_OWNER = 'purerinnnn-netizen';
+const GITHUB_REPO = 'artmug';
 const GITHUB_BRANCH = 'main';
 const PORTFOLIO_FOLDER_MAP = {
   '네컷2x2': '포트폴리오네컷2x2',
@@ -821,16 +826,14 @@ function fetchGithubFolder(folder){
     .then(res => res.ok ? res.json() : [])
     .catch(() => []);
 }
-function renderFolderPortfolio(map, wrapId){
-  const wrap = document.getElementById(wrapId);
-  if(!wrap) return;
+function renderFolderPortfolio(map){
   Object.keys(map).forEach(tab => {
     const folder = map[tab];
     fetchGithubFolder(folder).then(files => {
       if(!Array.isArray(files)) return;
       const media = files.filter(f => f && f.type === 'file' && isMediaFileName(f.name));
-      if(!media.length) return;
-      const panel = Array.prototype.find.call(wrap.querySelectorAll('.portfolio-panel'), p => p.dataset.tab === tab);
+      if(!media.length) return; /* 실제 파일이 없으면 기존 "준비중"/샘플을 그대로 둔다 */
+      const panel = document.querySelector('.portfolio-panel[data-tab="' + tab + '"]');
       if(!panel) return;
       const row = document.createElement('div');
       row.className = 'portfolio-row drag-scroll';
@@ -841,7 +844,7 @@ function renderFolderPortfolio(map, wrapId){
     });
   });
 }
-renderFolderPortfolio(PORTFOLIO_FOLDER_MAP, 'portfolio-groups');
+renderFolderPortfolio(PORTFOLIO_FOLDER_MAP);
 
 /* ================= 공지사항(안내/주의사항) - 관리시트 탭 연동 ================= */
 function csvRowsToObjects(rows){
@@ -959,6 +962,8 @@ function renderFormLabels(rows){
   setText('form-label-f3', '라벨3');
   setText('form-label-f4', '라벨4');
   setText('form-label-f5', '라벨5');
+  setText('form-label-c1', '라벨색상1');
+  setText('form-label-c2', '라벨색상2');
   setText('form-submit-text', '복사버튼');
   if(typeof buildFormPreview === 'function') buildFormPreview();
 }
