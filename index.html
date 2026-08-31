@@ -329,20 +329,13 @@ img,video,iframe{max-width:100%;display:block;-webkit-user-drag:none;user-drag:n
 .color-pick-row{display:flex;align-items:center;gap:12px;}
 .color-swatch{
   width:44px;height:44px;flex:0 0 auto;border-radius:50%;border:2px solid rgba(255,255,255,.9);
-  padding:0;cursor:default;background:none;display:inline-block;overflow:hidden;
+  padding:0;cursor:pointer;background:none;-webkit-appearance:none;appearance:none;overflow:hidden;
   box-shadow:0 4px 10px -3px rgba(160,140,190,.5);
 }
 .color-swatch::-webkit-color-swatch-wrapper{padding:0;}
 .color-swatch::-webkit-color-swatch{border:none;border-radius:50%;}
 .color-swatch::-moz-color-swatch{border:none;border-radius:50%;}
-.color-hex{flex:1;text-transform:uppercase;letter-spacing:.05em;cursor:default;}
-.color-preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-.color-preset-swatch{
-  width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.9);cursor:pointer;
-  box-shadow:0 3px 8px -2px rgba(160,140,190,.5);padding:0;transition:transform .2s ease;
-}
-.color-preset-swatch:hover{transform:scale(1.15);}
-.color-preset-swatch.active{border-color:var(--mint-deep);box-shadow:0 0 0 2px rgba(155,127,209,.35);}
+.color-hex{flex:1;text-transform:uppercase;letter-spacing:.05em;cursor:default;border-radius:999px;}
 #form-preview{
   white-space:pre-wrap;background:rgba(255,255,255,.6);border:1px solid rgba(155,127,209,.2);border-radius:18px;padding:20px 22px;
   font-size:16px;margin-top:22px;color:var(--ink);line-height:1.95;
@@ -428,18 +421,16 @@ img,video,iframe{max-width:100%;display:block;-webkit-user-drag:none;user-drag:n
     <div class="form-field">
       <label><span id="form-label-c1">색상 1 (선택)</span></label>
       <div class="color-pick-row">
-        <span class="color-swatch color-swatch-display" id="rf-color1" style="background:#FFD0E4"></span>
+        <input type="color" class="color-swatch" id="rf-color1" value="#FFD0E4">
         <input type="text" class="rf-text-input color-hex" id="rf-color1-hex" value="#FFD0E4" readonly>
       </div>
-      <div class="color-preset-row" data-target="rf-color1"></div>
     </div>
     <div class="form-field">
       <label><span id="form-label-c2">색상 2 (선택)</span></label>
       <div class="color-pick-row">
-        <span class="color-swatch color-swatch-display" id="rf-color2" style="background:#FFD0E4"></span>
+        <input type="color" class="color-swatch" id="rf-color2" value="#FFD0E4">
         <input type="text" class="rf-text-input color-hex" id="rf-color2-hex" value="#FFD0E4" readonly>
       </div>
-      <div class="color-preset-row" data-target="rf-color2"></div>
     </div>
   </div>
 
@@ -1013,25 +1004,13 @@ bindReadGroup();
   document.getElementById(id)?.addEventListener('input', () => { buildFormPreview(); toggleFormSubmit(); });
 });
 
-const COLOR_PRESETS = ['#FFD0E4','#FFB1C3','#FFE3EA','#FFF3C4','#D9F2D0','#C8E8F0','#D9CDF5','#E0C3F5','#F5D9C8','#FFFFFF','#333333'];
-function setColorValue(id, hex){
-  const swatch = document.getElementById(id);
-  const hexBox = document.getElementById(id + '-hex');
-  if(swatch) swatch.style.background = hex;
-  if(hexBox) hexBox.value = hex.toUpperCase();
-  document.querySelectorAll('.color-preset-row[data-target="' + id + '"] .color-preset-swatch').forEach(sw => {
-    sw.classList.toggle('active', sw.dataset.hex.toLowerCase() === hex.toLowerCase());
-  });
-  buildFormPreview();
-}
 ['rf-color1','rf-color2'].forEach(id => {
-  const presetRow = document.querySelector('.color-preset-row[data-target="' + id + '"]');
-  if(!presetRow) return;
-  presetRow.innerHTML = COLOR_PRESETS.map(hex =>
-    `<button type="button" class="color-preset-swatch" data-hex="${hex}" style="background:${hex}" title="${hex}"></button>`
-  ).join('');
-  presetRow.querySelectorAll('.color-preset-swatch').forEach(btn => {
-    btn.addEventListener('click', () => setColorValue(id, btn.dataset.hex));
+  const picker = document.getElementById(id);
+  const hexBox = document.getElementById(id + '-hex');
+  if(!picker || !hexBox) return;
+  picker.addEventListener('input', () => {
+    hexBox.value = picker.value.toUpperCase();
+    buildFormPreview();
   });
 });
 
