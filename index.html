@@ -735,7 +735,7 @@ function renderBannerSubTabs(items, row){
   const present = [];
   items.forEach(it => { const s = (it.sub || '').trim(); if(s && present.indexOf(s) === -1) present.push(s); });
   const order = preferredOrder.filter(o => present.indexOf(o) !== -1).concat(present.filter(p => preferredOrder.indexOf(p) === -1));
-  if(order.length < 2){ wrap.innerHTML = ''; wrap.style.display = 'none'; return; }
+  if(order.length < 1){ wrap.innerHTML = ''; wrap.style.display = 'none'; return; }
   wrap.style.display = 'flex';
   wrap.innerHTML = ['<button type="button" class="tab-btn active" data-sub="__all__">전체</button>']
     .concat(order.map(name => `<button type="button" class="tab-btn" data-sub="${escapeHtml(name)}">${escapeHtml(name)}</button>`))
