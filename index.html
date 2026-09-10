@@ -288,6 +288,7 @@ img,video,iframe{max-width:100%;display:block;-webkit-user-drag:none;user-drag:n
 .portfolio-panel[data-tab="포스터류"] .portfolio-item.pending{width:280px;height:400px;}
 
 .portfolio-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.banner-subtabs{display:none;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .tab-btn{
   padding:10px 20px;border-radius:999px;border:1.5px solid rgba(155,127,209,.3);background:rgba(255,255,255,.7);
   font-family:inherit;font-size:14px;font-weight:700;color:var(--sub);cursor:pointer;
@@ -468,6 +469,7 @@ img,video,iframe{max-width:100%;display:block;-webkit-user-drag:none;user-drag:n
 <!-- ============ 4. 포트폴리오 - 배너류 ============ -->
 <section class="section" id="portfolio-배너류">
   <div class="section-head"><div class="section-icon"></div><div class="section-title">배너류</div></div>
+  <div class="banner-subtabs" id="banner-subtabs"></div>
   <div class="portfolio-panel active" data-tab="배너류">
     <div class="portfolio-row drag-scroll">
       <div class="portfolio-item pending">준비중</div>
@@ -638,24 +640,27 @@ function parsePortfolioCsv(text){
     const link = (row['링크'] || '').trim();
     const group = (row['구분'] || '').trim();
     const desc = (row['설명'] || '').trim();
+    const sub = (row['분류'] || '').trim();
     if(!link) return null;
-    return { title, link, group, desc };
+    return { title, link, group, desc, sub };
   }).filter(Boolean);
 }
-function portfolioItemHtml({ title, link, desc }){
+function portfolioItemHtml({ title, link, desc, sub }){
   const clean = link.split('?')[0];
   const safeLink = escapeHtml(link);
   const safeTitle = escapeHtml(title || '');
+  const safeSub = escapeHtml((sub || '').trim());
+  const subAttr = safeSub ? ` data-sub="${safeSub}"` : '';
   const captionText = (desc || title || '').trim();
   const caption = captionText ? `<div class="portfolio-caption">${escapeHtml(captionText).replace(/\n/g, '<br>')}</div>` : '';
   const youtubeId = getYoutubeId(link);
   if(youtubeId){
-    return `<div class="portfolio-item"><div class="portfolio-item-media"><iframe src="https://www.youtube.com/embed/${youtubeId}?rel=0&modestbranding=1" title="${safeTitle}" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>${caption}</div>`;
+    return `<div class="portfolio-item"${subAttr}><div class="portfolio-item-media"><iframe src="https://www.youtube.com/embed/${youtubeId}?rel=0&modestbranding=1" title="${safeTitle}" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>${caption}</div>`;
   }
   if(/\.(mp4|webm|mov|mkv)$/i.test(clean)){
-    return `<div class="portfolio-item"><div class="portfolio-item-media"><video autoplay loop muted playsinline><source src="${safeLink}"></video></div>${caption}</div>`;
+    return `<div class="portfolio-item"${subAttr}><div class="portfolio-item-media"><video autoplay loop muted playsinline><source src="${safeLink}"></video></div>${caption}</div>`;
   }
-  return `<div class="portfolio-item"><div class="portfolio-item-media"><img src="${safeLink}" alt="${safeTitle}" loading="lazy"></div>${caption}</div>`;
+  return `<div class="portfolio-item"${subAttr}><div class="portfolio-item-media"><img src="${safeLink}" alt="${safeTitle}" loading="lazy"></div>${caption}</div>`;
 }
 function ensurePortfolioTab(wrapId, group){
   const wrap = document.getElementById(wrapId);
@@ -720,6 +725,30 @@ function renderPortfolio(items){
     const row = panel.querySelector('.portfolio-row');
     row.innerHTML = byGroup[g].map(portfolioItemHtml).join('');
     makeDragScroll(row);
+    if(g === '배너류') renderBannerSubTabs(byGroup[g], row);
+  });
+}
+function renderBannerSubTabs(items, row){
+  const wrap = document.getElementById('banner-subtabs');
+  if(!wrap || !row) return;
+  const preferredOrder = ['상단배너','하단배너','플로팅배너','유튜브배너'];
+  const present = [];
+  items.forEach(it => { const s = (it.sub || '').trim(); if(s && present.indexOf(s) === -1) present.push(s); });
+  const order = preferredOrder.filter(o => present.indexOf(o) !== -1).concat(present.filter(p => preferredOrder.indexOf(p) === -1));
+  if(order.length < 2){ wrap.innerHTML = ''; wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+  wrap.innerHTML = ['<button type="button" class="tab-btn active" data-sub="__all__">전체</button>']
+    .concat(order.map(name => `<button type="button" class="tab-btn" data-sub="${escapeHtml(name)}">${escapeHtml(name)}</button>`))
+    .join('');
+  wrap.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      wrap.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      const sel = btn.dataset.sub;
+      row.querySelectorAll('.portfolio-item').forEach(el => {
+        const s = el.dataset.sub || '';
+        el.style.display = (sel === '__all__' || s === sel) ? '' : 'none';
+      });
+    });
   });
 }
 function makeDragScroll(row){
