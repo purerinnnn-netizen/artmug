@@ -73,7 +73,7 @@ if(navigator.clipboard)navigator.clipboard.writeText(txt).then(ok);else{var a=do
 fm.querySelectorAll('.maydee-option-grid label').forEach(function(l){var i=l.querySelector('input');i.style.display='none';i.onchange=function(){l.classList.toggle('is-selected',i.checked)};l.onkeydown=function(e){if(e.key==' '||e.key=='Enter'){e.preventDefault();i.click()}}});
 // 포트폴리오 (메이슨리)
 var pg=$('pg'),tabs=$('tabs').children,G=12;
-var curTab=0;function cols(){var n=PORT[curTab][0];return n=='네컷 2*2'?2:(n=='네컷 1*4'||n=='포토카드')?(pg.clientWidth<560?2:4):n=='플로팅배너'?(pg.clientWidth<560?3:6):1}
+var curTab=0;function cols(){var n=PORT[curTab][0];return (n=='네컷 2*2'||n=='포스터')?2:(n=='네컷 1*4'||n=='포토카드')?(pg.clientWidth<560?2:4):n=='플로팅배너'?(pg.clientWidth<560?3:6):1}
 function lay(){var items=[].slice.call(pg.children),C=cols(),w=(pg.clientWidth-G*(C-1))/C,h=new Array(C).fill(0);
 items.forEach(function(a){var im=a.querySelector('img'),r=(im.naturalHeight&&im.naturalWidth)?im.naturalHeight/im.naturalWidth:1.4,hh=w*r,c=h.indexOf(Math.min.apply(null,h));
 a.style.width=w+'px';a.style.height=hh+'px';a.style.transform='translate('+(c*(w+G))+'px,'+h[c]+'px)';a.style.opacity=1;h[c]+=hh+G});pg.style.height=Math.max.apply(null,h)+'px'}
@@ -81,6 +81,32 @@ function show(i){curTab=i;[].forEach.call(tabs,function(t,k){t.classList.toggle(
 PORT[i][1].forEach(function(u){var a=document.createElement('article'),d=document.createElement('div'),im=new Image();d.className='maydee-portfolio-card-reveal';im.alt=PORT[i][0];im.onload=lay;im.src=u;d.appendChild(im);a.appendChild(d);pg.appendChild(a)});lay()}
 [].forEach.call(tabs,function(t,k){t.onclick=function(){show(k)}});
 $('tl').onclick=function(){$('tabs').scrollBy({left:-240})};$('tr').onclick=function(){$('tabs').scrollBy({left:240})};
-window.addEventListener('resize',lay);show(0);
+window.addEventListener('resize',lay);window.__portReload=function(){var t=$('tabs');t.innerHTML='';PORT.forEach(function(x,k){var b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.textContent=x[0];b.onclick=function(){show(k)};t.appendChild(b)});show(0)};show(0);
+})();
+</script><script>
+// 구글 시트 연결: 시트 주소의 ID를 아래에 넣으세요 (시트는 "웹에 게시" 또는 "링크가 있는 모든 사용자 보기"). 비어 있거나 실패하면 페이지 안의 기본 문구가 그대로 나옵니다.
+var SHEET_ID='';
+(function(){
+if(!SHEET_ID)return;
+function csv(t){var r=[],row=[],c='',q=false;for(var i=0;i<t.length;i++){var ch=t[i];
+if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}
+else if(ch=='"')q=true;else if(ch==',')row.push(c),c='';
+else if(ch=='\n'){row.push(c);r.push(row);row=[];c=''}else if(ch!='\r')c+=ch}
+if(c||row.length){row.push(c);r.push(row)}return r.slice(1).filter(function(x){return x.join('').trim()})}
+function load(name){return fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent(name)).then(function(r){if(!r.ok)throw 0;return r.text()}).then(csv)}
+function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+load('공지사항').then(function(rows){if(!rows.length)return;var box=document.querySelector('.pn-notes');box.innerHTML='';
+rows.forEach(function(r,i){var a=el('article','pn-card'+(i==0?' is-key':'')),h=el('h3',null,r[1]);if((r[3]||'').trim().toUpperCase()=='O')h.appendChild(el('em',null,'필독'));
+a.appendChild(el('i','pn-pin'));a.appendChild(el('span','pn-no',r[0]));a.appendChild(h);a.appendChild(el('p',null,r[2]));box.appendChild(a)})}).catch(function(){});
+load('질의응답').then(function(rows){if(!rows.length)return;var box=document.querySelector('.pn-chat');box.innerHTML='';
+rows.forEach(function(r){var q=el('div','pn-q'),a=el('div','pn-a');q.appendChild(el('span','pn-av','Q'));q.appendChild(el('div','pn-bub',r[0]));a.appendChild(el('div','pn-bub',r[1]));a.appendChild(el('span','pn-av','A'));box.appendChild(q);box.appendChild(a)})}).catch(function(){});
+function drv(u){u=(u||'').trim();var m=u.match(/\/d\/([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w2000':u}
+load('포트폴리오').then(function(rows){var g={},ord=[];rows.forEach(function(r){var c=(r[0]||'').trim(),u=drv(r[1]);if(!c||!u)return;if(!g[c]){g[c]=[];ord.push(c)}g[c].push(u)});
+if(!ord.length)return;ord.forEach(function(c){var f=false;PORT.forEach(function(x){if(x[0]==c){x[1]=x[1].concat(g[c]);f=true}});if(!f)PORT.push([c,g[c]])});
+window.__portReload&&window.__portReload()}).catch(function(){});
+load('추가옵션').then(function(rows){if(!rows.length)return;var grid=document.querySelector('.maydee-option-grid'),tpl=grid.querySelector('label>span').innerHTML;grid.innerHTML='';
+rows.forEach(function(r){var l=el('label'),i=document.createElement('input'),sp=document.createElement('span');l.tabIndex=0;i.type='checkbox';i.value=r[0];i.style.display='none';sp.innerHTML=tpl;
+l.appendChild(i);l.appendChild(sp);l.appendChild(document.createTextNode(r[1]||r[0]));i.onchange=function(){l.classList.toggle('is-selected',i.checked)};
+l.onkeydown=function(e){if(e.key==' '||e.key=='Enter'){e.preventDefault();i.click()}};grid.appendChild(l)})}).catch(function(){});
 })();
 </script></body></html>
